@@ -3,6 +3,7 @@ from flask.views import MethodView
 
 
 class Loan(MethodView):
+    # TODO: add request and response schema validations to views
 
     def get(self, loan_id: int) -> Dict[str, List]:
         if loan_id is None:
