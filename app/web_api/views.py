@@ -54,8 +54,10 @@ class Loans(MethodView):
 
     @api_blp.response(200, schema=ListLoansResponseSchema)
     def get(self) -> Dict[str, List]:
-        # TODO: implement listing method
-        return {'loans': []}
+        with UnitOfWork(current_app.db_connection) as unit_of_work:
+            loan_repository = LoanRepository(session=unit_of_work.session)
+            loans = loan_repository.list()
+        return {"loans": loans, "count": len(loans)}
 
 
 @api_blp.route("/loan/<id>")
@@ -79,11 +81,27 @@ class Loan(MethodView):
 
     @api_blp.response(200, schema=LoanResponseSchema)
     def delete(self, id: int) -> Dict[str, int]:
-        # TODO: implement delete method
-        return {"id": id}
+        with UnitOfWork(current_app.db_connection) as unit_of_work:
+            loan_repository = LoanRepository(session=unit_of_work.session)
+            loan_repository.delete(id)
+            unit_of_work.commit()
+            return {"id": id}
 
     @api_blp.arguments(UpdateLoanRequestSchema)
     @api_blp.response(200, schema=LoanResponseSchema)
-    def put(self, update_loan_params: Dict, id: int) -> Dict:
-        # TODO: implement put method
-        return {}
+    def put(self, update_loan_parameters: Dict, id: int) -> Dict:
+        with UnitOfWork(current_app.db_connection) as unit_of_work:
+            loan_repository = LoanRepository(session=unit_of_work.session)
+            loan_repository.update(id=id, update_loan_parameters=update_loan_parameters)
+            unit_of_work.commit()
+            loan = loan_repository.get(id)
+            return {
+               "id": loan.id,
+               "amount": loan.amount,
+               "currency": loan.currency,
+               "base_interest_rate": loan.base_interest_rate,
+               "margin": loan.margin,
+               "start_date": loan.start_date,
+               "end_date": loan.end_date,
+               "calculation_result": loan.calculation_result
+            }

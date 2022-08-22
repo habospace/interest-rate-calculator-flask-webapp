@@ -13,3 +13,4 @@ class LoanSchema(CreateLoanSchema):
 
 class ListLoansSchema(Schema):
     loans = fields.List(fields.Nested(LoanSchema), required=True)
+    count = fields.Integer(required=True)

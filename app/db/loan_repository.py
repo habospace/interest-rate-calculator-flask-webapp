@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from datetime import date, datetime
 
 from pydantic import BaseModel
@@ -67,10 +67,32 @@ class LoanRepository:
             updated_on=loan_record.updated_on
         )
 
-    def list(self):
-        # TODO: implement this
-        pass
+    def list(self) -> List[LoanSchema]:
+        return [
+            LoanSchema(
+                id=loan.id,
+                amount=loan.amount,
+                currency=loan.currency,
+                base_interest_rate=loan.base_interest_rate,
+                margin=loan.margin,
+                start_date=loan.start_date,
+                end_date=loan.end_date,
+                calculation_result=loan.calculation_result,
+                created_on=loan.created_on,
+                updated_on=loan.updated_on
+            ) for loan in self.session.query(Loan).all()
+        ]
 
-    def update(self):
-        # TODO: implement this
-        pass
+    def delete(self, id: int):
+        loan = self.session.query(Loan).filter(Loan.id == id).first()
+        if not loan:
+            raise LoanNotFoundError(f"Loan with id={id} is not found so can't be deleted.")
+        self.session.delete(loan)
+
+    def update(self, id: int, update_loan_parameters: Dict):
+        loan = self.session.query(Loan).filter(Loan.id == id).first()
+        if not loan:
+            raise LoanNotFoundError(f"Loan with id={id} is not found so can't be updated.")
+        for field, value in update_loan_parameters.items():
+            setattr(loan, field, value)
+        loan.updated_on = datetime.utcnow()
