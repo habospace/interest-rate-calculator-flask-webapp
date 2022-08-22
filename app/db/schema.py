@@ -4,6 +4,7 @@ from sqlalchemy import (
     MetaData,
     Table,
     Integer,
+    DECIMAL,
     String,
     Column,
     DateTime,
@@ -12,10 +13,7 @@ from sqlalchemy import (
     Date,
     Float
 )
-from sqlalchemy.dialects.postgresql import (
-    DOUBLE_PRECISION,
-    JSON
-)
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_json import mutable_json_type
 from datetime import datetime
@@ -28,10 +26,10 @@ class Loan(Base):
     __tablename__ = 'loan'
     id = Column(Integer, primary_key=True)
 
-    amount = Column(Float, nullable=False)
+    amount = Column(DECIMAL(precision=20, scale=2), nullable=False)
     currency = Column(String(3), nullable=False)
-    base_interest_rate = Column(DOUBLE_PRECISION, nullable=False)
-    margin = Column(Float, nullable=False)
+    base_interest_rate = Column(DECIMAL(precision=20, scale=2), nullable=False)
+    margin = Column(DECIMAL(precision=20, scale=2), nullable=False)
 
     start_date = Column(Date(), default=datetime.now, nullable=False)
     end_date = Column(Date(), default=datetime.now, nullable=False)
