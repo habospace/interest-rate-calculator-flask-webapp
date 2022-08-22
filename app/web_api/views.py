@@ -1,7 +1,7 @@
 from typing import Dict, List
 from flask import current_app
 from flask.views import MethodView
-from flask_smorest import Api, Blueprint, abort
+from flask_smorest import Blueprint
 
 from web_api.schemas.request import (
     UpdateLoanSchema as UpdateLoanRequestSchema,

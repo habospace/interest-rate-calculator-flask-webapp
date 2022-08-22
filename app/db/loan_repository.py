@@ -1,7 +1,7 @@
 from typing import Dict
 from datetime import date, datetime
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 
 from db.schema import Loan
 

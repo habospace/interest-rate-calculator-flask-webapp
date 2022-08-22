@@ -1,17 +1,12 @@
 import os
 from sqlalchemy import (
     create_engine,
-    MetaData,
-    Table,
     Integer,
     DECIMAL,
     String,
     Column,
     DateTime,
-    ForeignKey,
-    Numeric,
     Date,
-    Float
 )
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.ext.declarative import declarative_base

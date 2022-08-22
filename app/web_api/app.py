@@ -1,6 +1,6 @@
 from flask import Flask
 from sqlalchemy import create_engine
-from flask_smorest import Api, Blueprint, abort
+from flask_smorest import Api
 
 from web_api.views import api_blp
 
