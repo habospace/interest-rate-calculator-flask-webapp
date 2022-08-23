@@ -1,4 +1,7 @@
-from typing import Dict, List
+from typing import (
+    Dict,
+    List
+)
 from flask import current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint
@@ -12,7 +15,7 @@ from web_api.schemas.response import (
     ListLoansSchema as ListLoansResponseSchema
 )
 from db.unit_of_work import UnitOfWork
-from db.loan_repository import (
+from db.data_repositories.loan_repository import (
     LoanRepository,
     CreateLoanSchema,
     LoanSchema
@@ -49,7 +52,7 @@ class Loans(MethodView):
                "margin": new_loan.margin,
                "start_date": new_loan.start_date,
                "end_date": new_loan.end_date,
-               "calculation_result": new_loan.calculation_result
+               "total_interest": new_loan.total_interest
             }
 
     @api_blp.response(200, schema=ListLoansResponseSchema)
@@ -76,7 +79,7 @@ class Loan(MethodView):
                "margin": loan.margin,
                "start_date": loan.start_date,
                "end_date": loan.end_date,
-               "calculation_result": loan.calculation_result
+               "total_interest": loan.total_interest
             }
 
     @api_blp.response(200, schema=LoanResponseSchema)
@@ -103,5 +106,5 @@ class Loan(MethodView):
                "margin": loan.margin,
                "start_date": loan.start_date,
                "end_date": loan.end_date,
-               "calculation_result": loan.calculation_result
+               "total_interest": loan.total_interest
             }
