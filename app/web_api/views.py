@@ -48,6 +48,7 @@ class Loans(MethodView):
                 loan_amount=Decimal(create_loan_params["amount"]),
                 currency=create_loan_params["currency"],
                 annual_margin=Decimal(create_loan_params["margin"]),
+                base_interest_rates=base_interest_rates
             )
 
             new_loan = loan_repository.add(
