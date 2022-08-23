@@ -1,5 +1,12 @@
-from typing import Dict, List
-from datetime import date, datetime
+from decimal import Decimal
+from typing import (
+    Dict,
+    List
+)
+from datetime import (
+    date,
+    datetime
+)
 
 from pydantic import BaseModel
 
@@ -11,13 +18,13 @@ class LoanNotFoundError(Exception):
 
 
 class CreateLoanSchema(BaseModel):
-    amount: float
+    amount: Decimal
     currency: str
     base_interest_rate: str
-    margin: float
+    margin: Decimal
     start_date: date
     end_date: date
-    calculation_result: Dict
+    total_interest: Decimal
 
 
 class LoanSchema(CreateLoanSchema):
@@ -43,7 +50,7 @@ class LoanRepository:
             margin=create_loan_parameters.margin,
             start_date=create_loan_parameters.start_date,
             end_date=create_loan_parameters.end_date,
-            calculation_result=create_loan_parameters.calculation_result,
+            total_interest=create_loan_parameters.total_interest,
             created_on=ts_now,
             updated_on=ts_now,
         )
