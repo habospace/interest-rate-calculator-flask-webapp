@@ -8,7 +8,7 @@ from web_api.schemas.request import CreateLoanSchema
 
 class LoanSchema(CreateLoanSchema):
     id = fields.Integer(required=True)
-    calculation_result = fields.Dict(required=True)
+    total_interest = fields.Float(required=True)
 
 
 class ListLoansSchema(Schema):
