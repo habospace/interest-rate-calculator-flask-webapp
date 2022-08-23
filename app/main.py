@@ -8,4 +8,4 @@ if __name__ == "__main__":
         openapi_version=os.environ["OPENAPI_VERSION"],
         db_connection_string=os.environ["DB_CONNECTION_STRING"]
     )
-    app.run(host=os.environ["HOST"], port=os.environ["PORT"])
+    app.run(host=os.environ["HOST"], port=int(os.environ["PORT"]))
