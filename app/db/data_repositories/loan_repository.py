@@ -10,11 +10,25 @@ from datetime import (
 
 from pydantic import BaseModel
 
-from db.schema import Loan
+from db.schema import (
+    Loan,
+    DailyLoanCalculationResult
+)
 
 
 class LoanNotFoundError(Exception):
     pass
+
+
+class CreateDailyLoanCalculationResultSchema(BaseModel):
+    date: date
+    interest_accrual_amount: Decimal
+    interest_accrual_amount_without_margin: Decimal
+    days_elapsed_since_loan_start_date: int
+
+
+class DailyLoanCalculationResultSchema(CreateDailyLoanCalculationResultSchema):
+    id: int
 
 
 class CreateLoanSchema(BaseModel):
@@ -25,10 +39,12 @@ class CreateLoanSchema(BaseModel):
     start_date: date
     end_date: date
     total_interest: Decimal
+    calculation_results: List[CreateDailyLoanCalculationResultSchema]
 
 
 class LoanSchema(CreateLoanSchema):
     id: int
+    calculation_results: List[DailyLoanCalculationResultSchema]
     created_on: datetime
     updated_on: datetime
 
@@ -53,6 +69,14 @@ class LoanRepository:
             total_interest=create_loan_parameters.total_interest,
             created_on=ts_now,
             updated_on=ts_now,
+            daily_loan_calculation_results=[
+                DailyLoanCalculationResult(
+                    date=result.date,
+                    interest_accrual_amount=result.interest_accrual_amount,
+                    interest_accrual_amount_without_margin=result.interest_accrual_amount_without_margin,
+                    days_elapsed_since_loan_start_date=result.days_elapsed_since_loan_start_date)
+                for result in create_loan_parameters.calculation_results
+            ]
         )
         self.session.add(loan)
         return loan

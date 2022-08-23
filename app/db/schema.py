@@ -11,6 +11,7 @@ from sqlalchemy import (
     DateTime,
     Date,
 )
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -18,8 +19,13 @@ engine = create_engine(os.environ["DB_CONNECTION_STRING"])
 Base = declarative_base()
 
 
+LOAN_TABLE_NAME = os.environ["LOAN_TABLE_NAME"]
+LOAN_CALCULATION_RESULT_TABLE_NAME = os.environ["LOAN_CALCULATION_RESULT_TABLE_NAME"]
+BASE_INTEREST_RATE_TABLE_NAME = os.environ["BASE_INTEREST_RATE_TABLE_NAME"]
+
+
 class BaseInterestRate(Base):
-    __tablename__ = "base_interest_rate"
+    __tablename__ = BASE_INTEREST_RATE_TABLE_NAME
     id = Column(Integer, primary_key=True)
     currency = Column(String(3), nullable=False)
     date = Column(Date(), nullable=False)
@@ -32,8 +38,9 @@ class BaseInterestRate(Base):
 
 
 class Loan(Base):
-    __tablename__ = 'loan'
+    __tablename__ = LOAN_TABLE_NAME
     id = Column(Integer, primary_key=True)
+    daily_loan_calculation_results = relationship("DailyLoanCalculationResult")
 
     amount = Column(DECIMAL(precision=25, scale=10), nullable=False)
     currency = Column(String(3), nullable=False)
@@ -48,10 +55,10 @@ class Loan(Base):
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
 
 
-class LoanCalculationResult(Base):
-    __tablename__ = "loan_calculation_result"
+class DailyLoanCalculationResult(Base):
+    __tablename__ = LOAN_CALCULATION_RESULT_TABLE_NAME
     id = Column(Integer, primary_key=True)
-    loan_id = Column(Integer, ForeignKey("loan.id"), nullable=False, index=True)
+    loan_id = Column(Integer, ForeignKey(f"{LOAN_TABLE_NAME}.id"), nullable=False, index=True)
 
     date = Column(Date(), nullable=False)
     interest_accrual_amount = Column(DECIMAL(precision=25, scale=10), nullable=False)

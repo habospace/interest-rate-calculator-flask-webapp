@@ -2,10 +2,12 @@ from typing import (
     Dict,
     List
 )
+from decimal import Decimal
 from flask import current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
+from calculator.loan import calculate_loan
 from web_api.schemas.request import (
     UpdateLoanSchema as UpdateLoanRequestSchema,
     CreateLoanSchema as CreateLoanRequestSchema
@@ -15,7 +17,9 @@ from web_api.schemas.response import (
     ListLoansSchema as ListLoansResponseSchema
 )
 from db.unit_of_work import UnitOfWork
+from db.data_repositories.base_interest_rate_repository import BaseInterestRateRepository
 from db.data_repositories.loan_repository import (
+    CreateDailyLoanCalculationResultSchema,
     LoanRepository,
     CreateLoanSchema,
     LoanSchema
@@ -32,6 +36,20 @@ class Loans(MethodView):
     def post(self, create_loan_params: Dict) -> Dict:
         with UnitOfWork(current_app.db_connection) as unit_of_work:
             loan_repository = LoanRepository(session=unit_of_work.session)
+            base_interest_rates_repository = BaseInterestRateRepository(session=unit_of_work.session)
+            base_interest_rates = base_interest_rates_repository.get(
+                start_date=create_loan_params["start_date"],
+                end_date=create_loan_params["end_date"],
+                currency=create_loan_params["currency"]
+            )
+            loan_calculation_results = calculate_loan(
+                start_date=create_loan_params["start_date"],
+                end_date=create_loan_params["end_date"],
+                loan_amount=Decimal(create_loan_params["amount"]),
+                currency=create_loan_params["currency"],
+                annual_margin=Decimal(create_loan_params["margin"]),
+            )
+
             new_loan = loan_repository.add(
                 CreateLoanSchema(
                     amount=create_loan_params["amount"],
@@ -40,7 +58,14 @@ class Loans(MethodView):
                     margin=create_loan_params["margin"],
                     start_date=create_loan_params["start_date"],
                     end_date=create_loan_params["end_date"],
-                    calculation_result={}
+                    calculation_results=[
+                        CreateDailyLoanCalculationResultSchema(
+                            date=result[3],
+                            interest_accrual_amount=result[0],
+                            interest_accrual_amount_without_margin=result[2],
+                            days_elapsed_since_loan_start_date=result[1]
+                        ) for result in loan_calculation_results
+                    ]
                 )
             )
             unit_of_work.commit()

@@ -12,10 +12,15 @@ class BaseInterestRateNotAvailableError(Exception):
     pass
 
 
+def calculate_daily_margin_from_annual(year: int, annual_margin: Decimal):
+    is_leapyear = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+    return annual_margin / Decimal(366.0) if is_leapyear else annual_margin / Decimal(365.0)
+
+
 def calculate_loan(
         start_date: date, end_date: date,
         loan_amount: Decimal, currency: str,
-        daily_margin: Decimal, base_interest_rates: Dict[str, BaseInterestRateSchema]
+        annual_margin: Decimal, base_interest_rates: Dict[str, BaseInterestRateSchema]
 ) -> loan_calculation_result:
 
     daily_loan_data = []
@@ -26,8 +31,9 @@ def calculate_loan(
             bi = base_interest_rates[f"{currency}_{current_date}"]
         except KeyError:
             raise BaseInterestRateNotAvailableError(
-                f"Base interest rate is not available for: currency={currency}, date={current_date}"
+                f"Base interest rate is not available for: currency={currency}, date={current_date}."
             )
+        daily_margin = calculate_daily_margin_from_annual(year=current_date.year, annual_margin=annual_margin)
         daily_interest_accrual_amount = calculate_interest_accrual_amount(
             p=loan_amount, bi=bi, m=daily_margin, n=Decimal(1)
         )
