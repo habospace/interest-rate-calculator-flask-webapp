@@ -10,6 +10,7 @@ sqlalchemy = "==1.4.31"
 sqlalchemy-json = "==0.4.0"
 psycopg2-binary = "==2.9.3"
 pydantic = "==1.9.0"
+holidays = "==0.15"
 
 [requires]
 python_version = "3.10"

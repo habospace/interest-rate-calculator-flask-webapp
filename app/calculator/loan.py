@@ -1,18 +1,28 @@
-from typing import List, Dict, Tuple
+from collections import namedtuple
+from typing import (
+    List,
+    Dict
+)
 from datetime import date, timedelta
 from decimal import Decimal
 
 from db.data_repositories.base_interest_rate_repository import BaseInterestRateSchema
 
-loan_daily_data = Tuple[Decimal, int, Decimal, date]
+loan_daily_data = namedtuple("daily_loan_data", [
+    "interest_accrual_amount",
+    "days_elapsed_since_loan_start_date",
+    "interest_accrual_amount_without_margin",
+    "date"
+])
+
 loan_calculation_result = List[loan_daily_data]
 
 
-class BaseInterestRateNotAvailableError(Exception):
+class BaseInterestRateNotFound(Exception):
     pass
 
 
-def calculate_daily_margin_from_annual(year: int, annual_margin: Decimal):
+def calculate_daily_margin_from_annual(year: int, annual_margin: Decimal) -> Decimal:
     is_leapyear = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
     return annual_margin / Decimal(366.0) if is_leapyear else annual_margin / Decimal(365.0)
 
@@ -28,9 +38,9 @@ def calculate_loan(
     days_elapsed = 0
     while current_date <= end_date:
         try:
-            bi = base_interest_rates[f"{currency}_{current_date}"]
+            bi = base_interest_rates[f"{currency}_{current_date}"].interest_rate
         except KeyError:
-            raise BaseInterestRateNotAvailableError(
+            raise BaseInterestRateNotFound(
                 f"Base interest rate is not available for: currency={currency}, date={current_date}."
             )
         daily_margin = calculate_daily_margin_from_annual(year=current_date.year, annual_margin=annual_margin)
@@ -41,10 +51,14 @@ def calculate_loan(
             p=loan_amount, bi=bi, n=Decimal(1)
         )
         daily_loan_data.append(
-            (daily_interest_accrual_amount, days_elapsed, daily_interest_accrual_amount_without_margin, current_date)
+            loan_daily_data(
+                daily_interest_accrual_amount, days_elapsed,
+                daily_interest_accrual_amount_without_margin,
+                current_date
+            )
         )
         days_elapsed += 1
-        current_date += timedelta(days=days_elapsed)
+        current_date = start_date + timedelta(days=days_elapsed)
     return daily_loan_data
 
 

@@ -6,8 +6,7 @@ from datetime import (
     timedelta
 )
 from random import (
-    randint,
-    random
+    uniform
 )
 from typing import (
     List,
@@ -41,10 +40,11 @@ def populate_base_interest_rates(
         all_dates.append(current_date)
         current_date += timedelta(days=1)
 
+    min_daily_bi, max_daily_bi = 0.01 / 365.0, 0.1 / 365.0
     values_to_insert = [
         (
             f"('{currency}', '{interest_date}', "
-            f"{round(randint(1, 9) + random(), 2) if not static_interest_rate else static_interest_rate})"
+            f"{round(uniform(min_daily_bi, max_daily_bi), 7) if not static_interest_rate else static_interest_rate})"
         ) for currency in currencies for interest_date in all_dates
     ]
 

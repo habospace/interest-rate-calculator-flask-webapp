@@ -20,6 +20,9 @@ class UnitOfWork:
             self.session.close()
         self.session.close()
 
+    def flush(self):
+        self.session.flush()
+
     def commit(self):
         self.session.commit()
 
