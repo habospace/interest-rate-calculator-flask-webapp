@@ -6,6 +6,7 @@ from decimal import Decimal
 from flask import current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint
+from werkzeug.exceptions import HTTPException
 
 from calculator.loan import (
     calculate_loan,
@@ -14,7 +15,12 @@ from calculator.loan import (
 from web_api.errors import (
     InconsistentLoanStartAndEndDateError,
     LoanStartOrAndDateFallsOnBankHolidayError,
-    BANK_HOLIDAYS_UK
+    IncorrectLoanAmountError,
+    IncorrectMarginError,
+    OutOfBoundsStartDateError,
+    OutOfBoundsEndDateError,
+    BANK_HOLIDAYS_UK,
+    validate_loan_inputs
 )
 from web_api.schemas.request import (
     UpdateLoanSchema as UpdateLoanRequestSchema,
@@ -52,24 +58,21 @@ class Loans(MethodView):
             base_interest_rates_repository = BaseInterestRateRepository(session=unit_of_work.session)
 
             start_date, end_date = create_loan_params["start_date"], create_loan_params["end_date"]
-
-            if start_date >= end_date:
-                raise InconsistentLoanStartAndEndDateError("Loan start_date must be before end_date.")
-            if start_date in BANK_HOLIDAYS_UK or end_date in BANK_HOLIDAYS_UK:
-                raise LoanStartOrAndDateFallsOnBankHolidayError(
-                    f"Loan start_date and end_date cannot fall on a bank holiday: {[str(d) for d in BANK_HOLIDAYS_UK]}"
-                )
-
-            currency = create_loan_params["currency"]
             loan_amount = Decimal(create_loan_params["amount"])
             annual_margin_in_percent = Decimal(create_loan_params["annual_margin_in_percent"])
+            currency = create_loan_params["currency"]
+            validate_loan_inputs(
+                start_date=start_date, end_date=end_date, loan_amount=loan_amount,
+                annual_margin_in_percent=annual_margin_in_percent, currency=currency
+            )
+
             annual_margin = annual_margin_in_percent / Decimal(100.0)
 
             base_interest_rates = base_interest_rates_repository.get(
                 start_date=start_date, end_date=end_date, currency=currency
             )
             loan_calculation_results = calculate_loan(
-                base_interest_rates=base_interest_rates,
+                base_interest_rates={(bi.currency, bi.date): bi.interest_rate for bi in base_interest_rates},
                 start_date=start_date, end_date=end_date,
                 loan_amount=loan_amount, currency=currency,
                 annual_margin=annual_margin
@@ -155,24 +158,21 @@ class Loan(MethodView):
             base_interest_rates_repository = BaseInterestRateRepository(session=unit_of_work.session)
 
             start_date, end_date = update_loan_parameters["start_date"], update_loan_parameters["end_date"]
-            # TODO: this is duplication, refactor this into a validator method and call that instead
-            if start_date >= end_date:
-                raise InconsistentLoanStartAndEndDateError("Loan start_date must be before end_date.")
-            if start_date in BANK_HOLIDAYS_UK or end_date in BANK_HOLIDAYS_UK:
-                raise LoanStartOrAndDateFallsOnBankHolidayError(
-                    f"Loan start_date and end_date cannot fall on a bank holiday: {[str(d) for d in BANK_HOLIDAYS_UK]}"
-                )
-
-            currency = update_loan_parameters["currency"]
             loan_amount = Decimal(update_loan_parameters["amount"])
             annual_margin_in_percent = Decimal(update_loan_parameters["annual_margin_in_percent"])
+            currency = update_loan_parameters["currency"]
+            validate_loan_inputs(
+                start_date=start_date, end_date=end_date, loan_amount=loan_amount,
+                annual_margin_in_percent=annual_margin_in_percent, currency=currency
+            )
+
             annual_margin = annual_margin_in_percent / Decimal(100.0)
 
             base_interest_rates = base_interest_rates_repository.get(
                 start_date=start_date, end_date=end_date, currency=currency
             )
             loan_calculation_results = calculate_loan(
-                base_interest_rates=base_interest_rates,
+                base_interest_rates={(bi.currency, bi.date): bi.interest_rate for bi in base_interest_rates},
                 start_date=start_date, end_date=end_date,
                 loan_amount=loan_amount, currency=currency,
                 annual_margin=annual_margin
@@ -198,26 +198,8 @@ class Loan(MethodView):
             return {"id": id}
 
 
-@api_blp.errorhandler(InconsistentLoanStartAndEndDateError)
-def handle_inconsistent_loan_start_and_end_date_error(error):
-    return {"error": str(error)}, 400
-
-
-@api_blp.errorhandler(LoanStartOrAndDateFallsOnBankHolidayError)
-def handle_loan_start_or_end_date_falls_on_bank_holiday(error):
-    return {"error": str(error)}, 400
-
-
-@api_blp.errorhandler(LoanNotFoundError)
-def handle_loan_not_found_error(error):
-    return {"error": str(error)}, 404
-
-
-@api_blp.errorhandler(BaseInterestRatesNotFoundError)
-def handle_base_interest_rates_not_found_error(error):
-    return {"error": str(error)}, 404
-
-
-@api_blp.errorhandler(BaseInterestRateNotFound)
+@api_blp.errorhandler(Exception)
 def handle_base_interest_rate_not_found(error):
-    return {"error": str(error)}, 404
+    if isinstance(error, HTTPException):
+        return {"error": str(error)}, error.code
+    return {"error": str(error)}, 500
