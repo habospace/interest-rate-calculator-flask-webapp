@@ -1,0 +1,39 @@
+version: '3.1'
+services:
+  db:
+    image: postgres:13.3
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+
+  app:
+    build: .
+    # tty: true
+    command: /bin/sh -c "python db/schema.py;
+                         python db/scripts/populate_base_interest_rates.py 1.0;
+                         python main.py"
+    environment:
+      - DB_CONNECTION_STRING=postgresql://postgres:password@db:5432/postgres
+      - API_TITLE=loans
+      - API_VERSION=v1
+      - OPENAPI_VERSION=3.0.2
+      - HOST=0.0.0.0
+      - PORT=3001
+      - FLASK_ENV=development
+      - LOANS_PERIOD_START=2022
+      - LOANS_PERIOD_END=2032
+      - LOAN_CURRENCIES=USD,GBP,EUR
+      - MAXIMUM_LOAN_AMOUNT=1000000000000
+      - LOAN_TABLE_NAME=loan
+      - LOAN_CALCULATION_RESULT_TABLE_NAME=daily_loan_calculation_result
+      - BASE_INTEREST_RATE_TABLE_NAME=base_interest_rate
+    volumes:
+      - ./app:/app/
+    ports:
+      - 3001:3001
+
+networks:
+    default:
+        driver: custom-driver-1
