@@ -198,8 +198,53 @@ class Loan(MethodView):
             return {"id": id}
 
 
-@api_blp.errorhandler(Exception)
+@api_blp.errorhandler(LoanNotFoundError)
+def handle_loan_not_found_error(error):
+    return {"error": str(error)}, 404
+
+
+@api_blp.errorhandler(BaseInterestRatesNotFoundError)
+def handle_base_interest_rates_not_found_error(error):
+    return {"error": str(error)}, 404
+
+
+@api_blp.errorhandler(BaseInterestRateNotFound)
 def handle_base_interest_rate_not_found(error):
+    return {"error": str(error)}, 404
+
+
+@api_blp.errorhandler(InconsistentLoanStartAndEndDateError)
+def handle_inconsistent_loan_start_and_end_date_error(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(LoanStartOrAndDateFallsOnBankHolidayError)
+def handle_loan_start_or_end_date_falls_on_bank_holiday(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(OutOfBoundsEndDateError)
+def handle_inconsistent_loan_start_and_end_date_error(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(OutOfBoundsStartDateError)
+def handle_inconsistent_loan_start_and_end_date_error(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(IncorrectMarginError)
+def handle_inconsistent_loan_start_and_end_date_error(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(IncorrectLoanAmountError)
+def handle_inconsistent_loan_start_and_end_date_error(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(Exception)
+def handle_general_exception(error):
     if isinstance(error, HTTPException):
         return {"error": str(error)}, error.code
     return {"error": str(error)}, 500
