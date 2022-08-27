@@ -1,0 +1,207 @@
+{
+	"info": {
+		"_postman_id": "0b6e6495-f082-49df-8309-9c9a3331772e",
+		"name": "oneiro_interview",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9831049"
+	},
+	"item": [
+		{
+			"name": "create loan",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 18000, \n    \"currency\": \"GBP\" , \n    \"annual_margin_in_percent\": 5.0, \n    \"start_date\": \"2023-01-04\", \n    \"end_date\": \"2026-01-03\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/loans",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"loans"
+					],
+					"query": [
+						{
+							"key": "amount",
+							"value": "1000",
+							"disabled": true
+						},
+						{
+							"key": "currency",
+							"value": "GBP",
+							"disabled": true
+						},
+						{
+							"key": "base_interest_rate",
+							"value": "1.0",
+							"disabled": true
+						},
+						{
+							"key": "margin",
+							"value": "1.0",
+							"disabled": true
+						},
+						{
+							"key": "start_date",
+							"value": "2022-01-01",
+							"disabled": true
+						},
+						{
+							"key": "end_date",
+							"value": "2022-12-31",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get loan",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/loan/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"loan",
+						"1"
+					],
+					"query": [
+						{
+							"key": "amount",
+							"value": "1000",
+							"disabled": true
+						},
+						{
+							"key": "currency",
+							"value": "GBP",
+							"disabled": true
+						},
+						{
+							"key": "base_interest_rate",
+							"value": "1.0",
+							"disabled": true
+						},
+						{
+							"key": "margin",
+							"value": "1.0",
+							"disabled": true
+						},
+						{
+							"key": "start_date",
+							"value": "2022-01-01",
+							"disabled": true
+						},
+						{
+							"key": "end_date",
+							"value": "2022-12-31",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list loans",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/loans",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"loans"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete loan",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/loan/7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"loan",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update loan",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 36000, \n    \"currency\": \"GBP\" , \n    \"annual_margin_in_percent\": 5.0, \n    \"start_date\": \"2023-01-04\", \n    \"end_date\": \"2026-01-03\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/loan/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"loan",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
