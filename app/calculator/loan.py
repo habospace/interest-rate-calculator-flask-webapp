@@ -1,21 +1,26 @@
 from collections import namedtuple
 from typing import (
     List,
-    Dict
+    Dict,
+    Tuple
 )
-from datetime import date, timedelta
+from datetime import (
+    date,
+    timedelta
+)
 from decimal import Decimal
 
-from db.data_repositories.base_interest_rate_repository import BaseInterestRateSchema
 
-loan_daily_data = namedtuple("daily_loan_data", [
+LoanDailyCalculationResult = namedtuple("daily_loan_data", [
     "interest_accrual_amount",
     "days_elapsed_since_loan_start_date",
     "interest_accrual_amount_without_margin",
     "date"
 ])
 
-loan_calculation_result = List[loan_daily_data]
+Currency = str
+Date = date
+BaseInterestRate = Decimal
 
 
 class BaseInterestRateNotFound(Exception):
@@ -30,15 +35,15 @@ def calculate_daily_margin_from_annual(year: int, annual_margin: Decimal) -> Dec
 def calculate_loan(
         start_date: date, end_date: date,
         loan_amount: Decimal, currency: str,
-        annual_margin: Decimal, base_interest_rates: Dict[str, BaseInterestRateSchema]
-) -> loan_calculation_result:
+        annual_margin: Decimal, base_interest_rates: Dict[Tuple[Currency, Date], BaseInterestRate]
+) -> List[LoanDailyCalculationResult]:
 
     daily_loan_data = []
     current_date = start_date
     days_elapsed = 0
     while current_date <= end_date:
         try:
-            bi = base_interest_rates[f"{currency}_{current_date}"].interest_rate
+            bi = base_interest_rates[(currency, current_date)]
         except KeyError:
             raise BaseInterestRateNotFound(
                 f"Base interest rate is not available for: currency={currency}, date={current_date}."
@@ -51,7 +56,7 @@ def calculate_loan(
             p=loan_amount, bi=bi, n=Decimal(1)
         )
         daily_loan_data.append(
-            loan_daily_data(
+            LoanDailyCalculationResult(
                 daily_interest_accrual_amount, days_elapsed,
                 daily_interest_accrual_amount_without_margin,
                 current_date
