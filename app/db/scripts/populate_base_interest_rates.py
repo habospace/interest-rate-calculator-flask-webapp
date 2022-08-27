@@ -57,12 +57,17 @@ def populate_base_interest_rates(
 
 if __name__ == "__main__":
     db_engine = create_engine(DB_CONNECTION_STRING)
-    try:
-        interest_rate = Decimal(sys.argv[1])
-    except IndexError:
-        interest_rate = None
-    populate_base_interest_rates(
-        engine=db_engine,
-        table_name=BASE_INTEREST_RATE_TABLE_NAME,
-        static_interest_rate=interest_rate
-    )
+    interest_rate_table_empty = db_engine.execute(
+        f"SELECT COUNT(*) FROM public.{BASE_INTEREST_RATE_TABLE_NAME};"
+    ).fetchall()[0][0] == 0
+
+    if interest_rate_table_empty:
+        try:
+            interest_rate = Decimal(sys.argv[1])
+        except IndexError:
+            interest_rate = None
+        populate_base_interest_rates(
+            engine=db_engine,
+            table_name=BASE_INTEREST_RATE_TABLE_NAME,
+            static_interest_rate=interest_rate
+        )
