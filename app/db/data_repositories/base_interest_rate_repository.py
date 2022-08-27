@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Dict
+from typing import List
 
 from pydantic import BaseModel
 
@@ -23,7 +23,7 @@ class BaseInterestRateRepository:
     def __init__(self, session):
         self.session = session
 
-    def get(self, start_date: date, end_date: date, currency: str) -> Dict[str, BaseInterestRateSchema]:
+    def get(self, start_date: date, end_date: date, currency: str) -> List[BaseInterestRateSchema]:
         interest_rates = self.session.query(
             BaseInterestRate
         ).filter(
@@ -38,15 +38,14 @@ class BaseInterestRateRepository:
                 f"Couldn't find base interest rates for parameters: "
                 f"currency={currency}, start_date={start_date}, end_date={end_date}"
             )
-        return {
-            f"{rate.currency}_{rate.date}": BaseInterestRateSchema(
+        return [
+            BaseInterestRateSchema(
                 id=rate.interest_rate,
                 currency=rate.currency,
                 date=rate.date,
                 interest_rate=Decimal(rate.interest_rate),
-
             ) for rate in interest_rates
-        }
+        ]
 
     def add(self):
         raise NotImplementedError
