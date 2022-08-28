@@ -45,7 +45,7 @@ def calculate_loan(
             bi = base_interest_rates[(currency, current_date)]
         except KeyError:
             raise BaseInterestRateNotFound(
-                f"Base interest rate is not available for: currency={currency}, date={current_date}."
+                f"Base interest rate is not available for: 'currency'={currency}, 'date'={current_date}."
             )
         daily_margin = calculate_daily_margin_from_annual(year=current_date.year, annual_margin=annual_margin)
         daily_interest_accrual_amount = calculate_interest_accrual_amount(

@@ -19,6 +19,8 @@ from web_api.errors import (
     IncorrectMarginError,
     OutOfBoundsStartDateError,
     OutOfBoundsEndDateError,
+    LoanStartDateOnWeekendError,
+    LoanEndDateOnWeekendError,
     BANK_HOLIDAYS_UK,
     validate_loan_inputs
 )
@@ -240,6 +242,16 @@ def handle_inconsistent_loan_start_and_end_date_error(error):
 
 @api_blp.errorhandler(IncorrectLoanAmountError)
 def handle_inconsistent_loan_start_and_end_date_error(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(LoanStartDateOnWeekendError)
+def handle_loan_start_date_on_weekend_error(error):
+    return {"error": str(error)}, 400
+
+
+@api_blp.errorhandler(LoanEndDateOnWeekendError)
+def handle_loan_end_date_on_weekend_error(error):
     return {"error": str(error)}, 400
 
 
