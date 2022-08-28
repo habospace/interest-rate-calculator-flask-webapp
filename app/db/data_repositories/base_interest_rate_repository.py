@@ -36,7 +36,7 @@ class BaseInterestRateRepository:
         if not interest_rates:
             raise BaseInterestRatesNotFoundError(
                 f"Couldn't find base interest rates for parameters: "
-                f"currency={currency}, start_date={start_date}, end_date={end_date}"
+                f"'currency'={currency}, 'start_date'={start_date}, 'end_date'={end_date}"
             )
         return [
             BaseInterestRateSchema(
