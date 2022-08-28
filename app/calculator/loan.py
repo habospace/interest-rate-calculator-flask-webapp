@@ -19,7 +19,6 @@ LoanDailyCalculationResult = namedtuple("daily_loan_data", [
 ])
 
 Currency = str
-Date = date
 BaseInterestRate = Decimal
 
 
@@ -35,7 +34,7 @@ def calculate_daily_margin_from_annual(year: int, annual_margin: Decimal) -> Dec
 def calculate_loan(
         start_date: date, end_date: date,
         loan_amount: Decimal, currency: str,
-        annual_margin: Decimal, base_interest_rates: Dict[Tuple[Currency, Date], BaseInterestRate]
+        annual_margin: Decimal, base_interest_rates: Dict[Tuple[Currency, date], BaseInterestRate]
 ) -> List[LoanDailyCalculationResult]:
 
     daily_loan_data = []
