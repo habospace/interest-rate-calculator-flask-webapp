@@ -19,7 +19,7 @@ services:
       - API_TITLE=loans
       - API_VERSION=v1
       - OPENAPI_VERSION=3.0.2
-      - HOST=0.0.0.0
+      - HOST=0.0.0.0clba
       - PORT=3001
       - FLASK_ENV=development
       - LOANS_PERIOD_START=2022
@@ -33,6 +33,8 @@ services:
       - ./app:/app/
     ports:
       - 3001:3001
+    depends_on:
+      - db
 
 networks:
     default:
