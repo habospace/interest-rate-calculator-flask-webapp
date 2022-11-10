@@ -1,4 +1,4 @@
-# oneiro-coding-challenge
+# interest-rate-calculator-flask-webapp
 This repository contains the code for my oneiro-interview.
 
 ## How to Run:
