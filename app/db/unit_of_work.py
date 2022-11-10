@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-
+# FROM: https://www.cosmicpython.com/book/chapter_06_uow.html
 class UnitOfWork:
 
     def __init__(self, connection):
