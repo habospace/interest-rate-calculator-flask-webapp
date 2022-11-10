@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 
 class UnitOfWork:
 
-    def __init__(self, connection=None):
-        self.connection = connection or create_engine(os.environ["DB_CONNECTION_STRING"])
+    def __init__(self, connection):
+        self.connection = connection
         self.session_maker = sessionmaker(bind=connection)
 
     def __enter__(self):
@@ -19,9 +19,6 @@ class UnitOfWork:
             self.rollback()
             self.session.close()
         self.session.close()
-
-    def flush(self):
-        self.session.flush()
 
     def commit(self):
         self.session.commit()
